@@ -31,7 +31,8 @@ values at all.
 Settings → Pages → Source: **GitHub Actions**.
 
 The `deploy-demo` workflow fires on push to main and publishes `dist-demo/`.
-URL looks like `https://<you>.github.io/lentera/demo.html`.
+URL looks like `https://<you>.github.io/lentera/demo.html` (note: the site root
+404s on purpose — `demo.html` is the only page).
 
 That URL goes in the Devpost "Try it" field. It is the single most valuable line
 in the submission, because the rules say judges are not required to install an

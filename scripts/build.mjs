@@ -95,6 +95,8 @@ for (const f of walk(outDir)) {
   const s = rf(f, "utf8");
   // The Firebase SDK ships its own __FIREBASE_DEFAULTS__ reference, which is
   // library code, not our config. Only our own tokens count as a leftover.
+  // Only our own tokens count as a leftover. The Firebase SDK ships its own
+  // __FIREBASE_DEFAULTS__ reference, which is library code and always present.
   const leftovers = ["__FIREBASE_API_KEY__", "__FIREBASE_PROJECT_ID__", "__APPCHECK_SITE_KEY__"].filter(
     (t) => s.includes(t)
   );

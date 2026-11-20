@@ -79,6 +79,7 @@ check("apiKey is in the bundle", blob.includes(env.VITE_FB_API_KEY || "___"));
 check("projectId is in the bundle", blob.includes(env.VITE_FB_PROJECT_ID || "___"));
 check("App Check site key is in the bundle",
   blob.includes(env.VITE_FB_APPCHECK_SITE_KEY || "___"));
+// __FIREBASE_DEFAULTS__ is the SDK's own symbol; only our config tokens count.
 const leftovers = ["__FIREBASE_API_KEY__", "__FIREBASE_PROJECT_ID__", "__APPCHECK_SITE_KEY__"]
   .filter((t) => blob.includes(t));
 check("no placeholder tokens in the bundle", leftovers.length === 0, leftovers.join(", ") || "clean");
