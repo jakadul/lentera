@@ -3,6 +3,10 @@ name: deploy-demo
 # Builds the hosted demo and publishes dist-demo to GitHub Pages. The rules say
 # a hosted project is "highly encouraged" and judges are not required to install
 # an unpacked extension, so this URL is what most judges will actually open.
+#
+# Two jobs on purpose: the upload and the deploy are separate, because
+# deploy-pages@v4 reads artifact metadata that is not reliably visible to it
+# within the same job run.
 
 on:
   push:
@@ -16,14 +20,11 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -63,15 +64,16 @@ jobs:
           sed -i 's|="/|="|g' dist-demo/demo.html
           grep -o 'src="[^"]*"' dist-demo/demo.html
 
-      # upload-pages-artifact v3.0.4 hard-codes the artifact name and has a
-      # propagation race with deploy-pages v4, which then sees zero artifacts.
-      # Upload with upload-artifact v4 under the name deploy-pages expects, and
-      # let deploy-pages pick it up.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
           path: dist-demo
-          retention-days: 1
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
