@@ -91,6 +91,26 @@ check("generateContent is called at runtime",
 check("inferenceSource drives the badge",
   readFileSync("src/router.js", "utf8").includes("inferenceSource"));
 
+console.log("\n== declared chrome APIs are actually used ==\n");
+const manifestSrc = existsSync(manifestPath) ? readFileSync(manifestPath, "utf8") : "{}";
+const workerSrc = existsSync("dist/js/background.js") ? readFileSync("dist/js/background.js", "utf8") : "";
+const popupSrc = existsSync("dist/popup.js") ? readFileSync("dist/popup.js", "utf8") : "";
+
+// A manifest command with no onCommand listener is a silent no-op: the shortcut
+// shows in the UI but does nothing. That is the kind of gap a judge hits first.
+const declaresCommand = /"_execute_action"/.test(manifestSrc);
+const listensForCommand = /chrome\.commands\.onCommand/.test(workerSrc);
+check("declared command has an onCommand listener", declaresCommand === listensForCommand,
+  declaresCommand ? (listensForCommand ? "both present" : "manifest only") : "neither");
+
+const declaresContext = /"contextMenus"/.test(manifestSrc);
+const usesContext = /chrome\.contextMenus\./.test(workerSrc);
+check("contextMenus permission is used", !declaresContext || usesContext);
+
+const declaresTabs = /"tabs"/.test(manifestSrc);
+const usesTabs = /chrome\.tabs\.query/.test(workerSrc);
+check("tabs permission is used", !declaresTabs || usesTabs);
+
 console.log("\n== licence visible to judges ==\n");
 check("LICENSE file exists", existsSync("LICENSE"));
 check("README names the licence", /Apache-2\.0/i.test(readFileSync("README.md", "utf8")));

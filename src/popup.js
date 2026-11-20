@@ -138,8 +138,27 @@ async function onPaste() {
 els.go.addEventListener("click", onGo);
 if (els.paste) els.paste.addEventListener("click", onPaste);
 
+/**
+ * Pick up text the background worker left for us.
+ *
+ * The context menu and the Alt+Shift+L command both run in the worker, which has
+ * no DOM to render a result into. They stash the page text in session storage and
+ * open the popup; this reads it, fills the textarea, and clears the slot so a
+ * later manual open does not re-summarise the same page.
+ */
+async function consumeHandoff() {
+  if (!chrome?.storage?.session) return false;
+  const { "lentera.pendingText": pending } = await chrome.storage.session.get("lentera.pendingText");
+  if (!pending) return false;
+  els.input.value = pending;
+  await chrome.storage.session.remove("lentera.pendingText");
+  setHint(`Pulled ${pending.length.toLocaleString()} characters from the tab.`);
+  return true;
+}
+
 // Diagnose once on open so the judge sees the real runtime state, not a mock.
 (async function boot() {
+  const handedOff = await consumeHandoff();
   const probe = await probeDeviceModel();
   if (probe.state === "available") {
     setBadge("On-device ready", "local");

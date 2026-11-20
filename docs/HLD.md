@@ -151,3 +151,38 @@ Judge-facing claims and where to verify them:
   `response.inferenceSource`, never a guess.
 - App Check is enforced: console screenshot plus the debug-token flow in
   `initFirebase()`.
+## 10. Extension entry points
+
+Three ways in, all landing in the same place:
+
+| Entry | Handler | Why it hands off |
+|---|---|---|
+| Toolbar icon | popup opens directly | it is the popup |
+| Context menu item | `chrome.contextMenus.onClicked` | worker has no DOM to render into |
+| `Alt+Shift+L` | `chrome.commands.onCommand` | same |
+
+The worker cannot show a result, so both the context menu and the shortcut pull
+the page text, stash it in `chrome.storage.session`, and call
+`chrome.action.open()`. The popup drains that slot on boot and clears it, so a
+later manual open does not re-summarise the same page.
+
+A shortcut also cannot warm the on-device model: `initializeDeviceModel()` needs
+a user activation event, and a command handler is not one. Opening the popup
+gives the user a click to spend, which is why every path funnels there.
+
+`storage.session` is used rather than `local` because the handoff is transient:
+it is worthless once consumed, and session storage is cleared with the browser
+session, so a stale page cannot resurface days later.
+
+## 11. Known gaps
+
+Deliberate, with reasons:
+
+- **No PDF or audio input.** On-device inference rejects both outright.
+- **No multi-turn chat.** Also unsupported on-device; a chat UI would silently
+  be cloud-only on most documents, which defeats the premise.
+- **No account system.** History is scoped by an anonymous device id. It is a
+  128-bit random UUID, but it is a bearer token: anyone holding one can read
+  that device's summaries. Document text is what is worth protecting, and that
+  is what the rules guard.
+- **No Chrome Web Store listing.** Review can take longer than the deadline.

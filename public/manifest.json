@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Ringkas dokumen di perangkat kalau muat, ke cloud kalau tidak. Hybrid inference dengan Firebase AI Logic.",
   "minimum_chrome_version": "139",
-  "permissions": ["activeTab", "scripting", "storage", "contextMenus"],
+  "permissions": ["activeTab", "scripting", "storage", "contextMenus", "tabs"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "js/background.js",
