@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Lentera - offline-first reading companion",
   "version": "0.1.0",
-  "description": "Ringkas dokumen di perangkat kalau muat, ke cloud kalau tidak. Hybrid inference dengan Firebase AI Logic.",
+  "description": "Summarise on-device when it fits, cloud when it has to. Firebase AI Logic hybrid inference, with a badge that reports which path served each request.",
   "minimum_chrome_version": "139",
   "permissions": ["activeTab", "scripting", "storage", "contextMenus", "tabs"],
   "host_permissions": ["<all_urls>"],
