@@ -15,9 +15,12 @@
     "rehearse": "node scripts/rehearse.mjs"
   },
   "dependencies": {
-    "firebase": "^13.0.0"
+    "firebase": "13.4.0"
   },
   "devDependencies": {
     "vite": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=24.12.0"
   }
 }
