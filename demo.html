@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lentera — hybrid inference demo</title>
+    <link rel="stylesheet" href="/public/css/popup.css" />
+    <style>
+      body { width: auto; max-width: 720px; margin: 40px auto; padding: 0 20px; }
+      .wrap { padding: 0; }
+      textarea { height: 220px; font-size: 14px; }
+      .lead { color: var(--muted); margin-bottom: 18px; font-size: 14px; }
+      footer { margin-top: 16px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Lentera</h1>
+        <span id="badge" class="badge" data-tone="neutral">Checking</span>
+      </header>
+
+      <p class="lead">
+        Firebase AI Logic hybrid inference. Short documents run on-device with
+        Gemini Nano; long ones escalate to the cloud. The badge reports which
+        path served each request, taken from the SDK's own inferenceSource field.
+      </p>
+
+      <textarea id="input" placeholder="Paste a document to summarise..."></textarea>
+      <div class="row">
+        <button id="go" type="button">Summarise</button>
+      </div>
+      <div id="hint" role="status" aria-live="polite"></div>
+      <div id="out" aria-live="polite"></div>
+
+      <footer>
+        <span id="diag">App Check: —</span>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/offline-page.js"></script>
+  </body>
+</html>

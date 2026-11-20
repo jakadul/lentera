@@ -1,0 +1,71 @@
+name: deploy-demo
+
+# Builds the hosted demo and publishes dist-demo to GitHub Pages. The rules say
+# a hosted project is "highly encouraged" and judges are not required to install
+# an unpacked extension, so this URL is what most judges will actually open.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+      - name: Write .env from secrets
+        env:
+          FB_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FB_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FB_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FB_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FB_SENDER_ID: ${{ secrets.FIREBASE_SENDER_ID }}
+          FB_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FB_APPCHECK_SITE_KEY: ${{ secrets.FIREBASE_APPCHECK_SITE_KEY }}
+        run: |
+          cat > .env <<ENV
+          VITE_FB_API_KEY=${FB_API_KEY}
+          VITE_FB_AUTH_DOMAIN=${FB_AUTH_DOMAIN}
+          VITE_FB_PROJECT_ID=${FB_PROJECT_ID}
+          VITE_FB_STORAGE_BUCKET=${FB_STORAGE_BUCKET}
+          VITE_FB_SENDER_ID=${FB_SENDER_ID}
+          VITE_FB_APP_ID=${FB_APP_ID}
+          VITE_FB_APPCHECK_SITE_KEY=${FB_APPCHECK_SITE_KEY}
+          VITE_FB_APPCHECK_DEBUG=false
+          ENV
+
+      - run: npm run build:demo
+
+      # GitHub Pages serves from a subpath (/<repo>/), so asset URLs need the
+      # leading slash stripped for the demo bundle only.
+      - name: Make demo paths relative
+        run: |
+          sed -i 's|="/|="|g' dist-demo/demo.html
+          grep -o 'src="[^"]*"' dist-demo/demo.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-demo
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

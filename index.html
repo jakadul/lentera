@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lentera</title>
+    <link rel="stylesheet" href="/public/css/popup.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Lentera</h1>
+        <!-- Filled from the real inferenceSource. Never hardcoded. -->
+        <span id="badge" class="badge" data-tone="neutral">Checking</span>
+      </header>
+
+      <textarea id="input" placeholder="Paste text, or pull it from the current tab..."></textarea>
+
+      <div class="row">
+        <button id="go" type="button">Summarise</button>
+        <button id="paste" type="button" class="ghost">Paste from page</button>
+      </div>
+
+      <div id="hint" role="status" aria-live="polite"></div>
+      <div id="out" aria-live="polite"></div>
+
+      <footer>
+        <span id="diag">App Check: —</span>
+        <span class="sep">·</span>
+        <span><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> on any tab</span>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/popup.js"></script>
+  </body>
+</html>

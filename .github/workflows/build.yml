@@ -1,0 +1,84 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      # Firebase config is written from secrets at build time so the real values
+      # never sit in the repo. The build script restores the placeholders in the
+      # source afterwards, so the checkout stays clean.
+      - name: Write .env from secrets
+        env:
+          FB_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FB_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FB_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FB_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FB_SENDER_ID: ${{ secrets.FIREBASE_SENDER_ID }}
+          FB_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          FB_APPCHECK_SITE_KEY: ${{ secrets.FIREBASE_APPCHECK_SITE_KEY }}
+        run: |
+          cat > .env <<ENV
+          VITE_FB_API_KEY=${FB_API_KEY}
+          VITE_FB_AUTH_DOMAIN=${FB_AUTH_DOMAIN}
+          VITE_FB_PROJECT_ID=${FB_PROJECT_ID}
+          VITE_FB_STORAGE_BUCKET=${FB_STORAGE_BUCKET}
+          VITE_FB_SENDER_ID=${FB_SENDER_ID}
+          VITE_FB_APP_ID=${FB_APP_ID}
+          VITE_FB_APPCHECK_SITE_KEY=${FB_APPCHECK_SITE_KEY}
+          VITE_FB_APPCHECK_DEBUG=false
+          ENV
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Build demo
+        run: npm run build:demo
+
+      - name: Verify config landed
+        run: |
+          for f in dist/js/*.js dist-demo/assets/*.js; do
+            for token in __FIREBASE_API_KEY__ __FIREBASE_PROJECT_ID__ __APPCHECK_SITE_KEY__; do
+              if grep -q "$token" "$f" 2>/dev/null; then
+                echo "::error::$f still holds $token"
+                exit 1
+              fi
+            done
+          done
+          echo "config injected, no placeholders in output"
+
+      - name: Verify source is clean
+        run: |
+          if ! grep -q '__FIREBASE_API_KEY__' src/firebase.js; then
+            echo "::error::src/firebase.js was not restored"
+            exit 1
+          fi
+          echo "source restored to placeholders"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lentera-extension
+          path: dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lentera-demo
+          path: dist-demo/

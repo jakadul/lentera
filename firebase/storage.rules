@@ -1,0 +1,13 @@
+rules_version = '2';
+
+// Nothing in Lentera is uploaded to Storage: summarisation happens in the
+// extension and only the resulting text goes to Firestore. This file exists so
+// that Storage is explicitly closed instead of left at its default, which is
+// locked but easy to open by accident later.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

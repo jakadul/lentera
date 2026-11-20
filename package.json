@@ -1,0 +1,22 @@
+{
+  "name": "lentera",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lentera - offline-first reading companion. Hybrid inference with Firebase AI Logic: summarize short documents on-device, escalate long ones to the cloud.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/build.mjs",
+    "preview": "vite preview",
+    "test": "node --test tests/router.test.js",
+    "build:demo": "node scripts/build.mjs --mode demo",
+    "build:raw": "vite build"
+  },
+  "dependencies": {
+    "firebase": "^13.0.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Lentera - offline-first reading companion",
+  "version": "0.1.0",
+  "description": "Ringkas dokumen di perangkat kalau muat, ke cloud kalau tidak. Hybrid inference dengan Firebase AI Logic.",
+  "minimum_chrome_version": "139",
+  "permissions": ["activeTab", "scripting", "storage", "contextMenus"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "js/background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Lentera",
+    "default_popup": "index.html"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+L"
+      },
+      "description": "Ringkas tab aktif"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}
